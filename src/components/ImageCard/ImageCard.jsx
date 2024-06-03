@@ -3,17 +3,15 @@ import css from '../ImageCard/ImageCard.module.css'
 
 const ImageCard = ({ image, openModal }) => {
   return (
-    <div onClick={() => openModal(image)}>
+    <div>
       <div>
         <img
           className={css["gallery-img"]}
           src={image.urls.small}
           alt={image.description}
+          onClick={() => openModal(image)}
         />
-        <p className={css['description-img']}>
-          Likes:{image.likes}
-        </p>
-
+        <p className={css["description-img"]}>Likes:{image.likes}</p>
       </div>
     </div>
   );

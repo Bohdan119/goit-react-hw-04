@@ -1,14 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
-import { Toaster, toast } from "react-hot-toast";
-import Modal from "react-modal"; 
+import { Toaster } from "react-hot-toast";
+import Modal from "react-modal";
 
 import SearchBar from "../SearchBar/SearchBar";
 import ImageGallery from "../ImageGallery/ImageGallery";
 import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
 import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
-Modal.setAppElement("#root"); 
+Modal.setAppElement("#root");
 
 function App() {
   const [searchElement, setSearchElement] = useState("");
@@ -16,6 +17,7 @@ function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChangeInput = (evt) => {
     setSearchElement(evt.target.value);
@@ -23,16 +25,12 @@ function App() {
 
   const handleSearchSubmit = async (evt) => {
     evt.preventDefault();
-    if (searchElement.trim() === "") {
-      toast.error("Please enter a word");
-      return;
-    }
     setIsLoading(true);
     try {
       const response = await axios.get(
         "https://api.unsplash.com/search/photos",
         {
-          params: { query: searchElement, per_page: 12, page: 1 }, 
+          params: { query: searchElement, per_page: 12, page: 1 },
           headers: {
             Authorization:
               "Client-ID clh8DLzDDsa7s4a-rCQYNJtiejAJ2cLx3IP1SlhSy_c",
@@ -41,9 +39,10 @@ function App() {
       );
       setImages(response.data.results);
       setPage(2);
+      setError(null);
     } catch (error) {
       console.error("Error fetching images:", error);
-      toast.error("Error fetching images");
+      setError("Error fetching images");
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +54,7 @@ function App() {
       const response = await axios.get(
         "https://api.unsplash.com/search/photos",
         {
-          params: { query: searchElement, per_page: 12, page }, 
+          params: { query: searchElement, per_page: 12, page },
           headers: {
             Authorization:
               "Client-ID clh8DLzDDsa7s4a-rCQYNJtiejAJ2cLx3IP1SlhSy_c",
@@ -66,7 +65,7 @@ function App() {
       setPage((prevPage) => prevPage + 1);
     } catch (error) {
       console.error("Error fetching more images:", error);
-      toast.error("Error fetching more images");
+      setError("Error fetching more images");
     } finally {
       setIsLoading(false);
     }
@@ -83,6 +82,7 @@ function App() {
   return (
     <>
       <Toaster />
+      {error && <ErrorMessage message={error} />}
       <SearchBar
         handleChangeInput={handleChangeInput}
         handleSubmit={handleSearchSubmit}
